@@ -607,7 +607,7 @@
 
     
     <script>
-       function completeCourse(courseId, courseName) {
+    function completeCourse(courseId, courseName) {
     const user = firebase.auth().currentUser;
     
     if (!user) {
@@ -626,7 +626,6 @@
         alert('Fehler beim Speichern des Fortschritts');
     });
 }
-        }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -762,9 +761,9 @@
         console.log('✅ PDF-Schutz aktiv: Download/Print/Export blockiert');
     </script>
 <!-- FIREBASE SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
     const firebaseConfig = {
