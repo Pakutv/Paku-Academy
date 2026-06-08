@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAKU Academy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1428 0%, #1a2845 100%);
+            color: #dcdcdc;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #c89b3c;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-title h1 {
+            color: #c89b3c;
+            font-size: 2em;
+        }
+
+        .header-title p {
+            color: #ceb478;
+            font-size: 0.9em;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            color: #c89b3c;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #c89b3c, #785a28);
+            color: #0a1428;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(200, 155, 60, 0.3);
+        }
+
+        .intro-video-section {
+            background: linear-gradient(135deg, #1a2845 0%, #2a3a55 100%);
+            border-radius: 12px;
+            padding: 40px 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 4px 20px rgba(200, 155, 60, 0.15);
+            border: 2px solid rgba(200, 155, 60, 0.3);
+        }
+
+        .intro-video-section h2 {
+            color: #c89b3c;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .intro-video-section video {
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+            width: 100%;
+            height: auto;
+            max-width: 800px;
+        }
+
+        .courses-section h2 {
+            color: #c89b3c;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #c89b3c;
+            padding-bottom: 15px;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: rgba(200, 155, 60, 0.05);
+            border: 2px solid #c89b3c;
+            border-radius: 8px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .course-card:hover {
+            background: rgba(200, 155, 60, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(200, 155, 60, 0.2);
+        }
+
+        .course-card.completed {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: #4CAF50;
+        }
+
+        .course-card.completed:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .course-card h3 {
+            color: #c89b3c;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .course-card.completed h3 {
+            color: #4CAF50;
+        }
+
+        .course-card p {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .completion-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .course-card.completed .completion-badge {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #c89b3c;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .header-left {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="header-title">
+                    <h1>🎮 PAKU ACADEMY</h1>
+                    <p>League of Legends Kurssystem</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-name" id="user-name">Wird geladen...</div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="intro-video-section">
+            <h2>🎬 Willkommen zur PAKU Academy</h2>
+            <video 
+                width="100%" 
+                height="600" 
+                controls 
+                style="border-radius: 8px; background: #000; border: 2px solid #c89b3c;">
+                <source src="PAKU_intro.mp4" type="video/mp4">
+                Dein Browser unterstützt HTML5 Videos nicht.
+            </video>
+        </div>
+
+        <div class="courses-section">
+            <h2>📚 Deine Kurse</h2>
+            <div class="courses-grid">
+                <a href="01_Review_System.html" class="course-card" id="course-0">
+                    <div class="completion-badge">✅ ABGESCHLOSSEN</div>
+                    <h3>📋 Review System</h3>
+                    <p>Lerne systematisch nach jedem Spiel zu reflektieren</p>
+                </a>
+                <a href="02_Mental_Mastery.html" class="course-card" id="course-1">
+                    <div class="completion-badge">✅ ABGESCHLOSSEN</div>
+                    <h3>🧠 Mental Mastery</h3>
+                    <p>Meistere die Psychologie deines Spiels</p>
+                </a>
+                <a href="03_Champion_Fundamentals.html" class="course-card" id="course-2">
+                    <div class="completion-badge">✅ ABGESCHLOSSEN</div>
+                    <h3>🎮 Champion Fundamentals</h3>
+                    <p>Meistere deinen Champion auf tiefste Ebene</p>
+                </a>
+                <a href="04_Mechanical_Fundamentals.html" class="course-card" id="course-3">
+                    <div class="completion-badge">✅ ABGESCHLOSSEN</div>
+                    <h3>⚙️ Mechanical Fundamentals</h3>
+                    <p>Trainiere saubere Ausführung und Movement</p>
+                </a>
+                <a href="05_Spielverstaendnis.html" class="course-card" id="course-4">
+                    <div class="completion-badge">✅ ABGESCHLOSSEN</div>
+                    <h3>🧠 Spielverständnis</h3>
+                    <p>Lerne bessere strategische Entscheidungen</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🎮 PAKU Academy - League of Legends Kurssystem</p>
+            <p style="margin-top: 10px; color: #666; font-size: 0.9em;">© 2024 PAKU Academy | Made with ❤️</p>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            projectId: "paku-academy",
+            apiKey: "AIzaSyBONrlg2hMKFL9WKSAg7v11uhQ72QsMX7k",
+            authDomain: "paku-academy.firebaseapp.com",
+            databaseURL: "https://paku-academy-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Check Authentication
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                // Nicht angemeldet — Redirect zu Login
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Benutzer angemeldet — Laden
+            document.getElementById('user-name').textContent = `Hallo, ${user.displayName || user.email}! 👋`;
+            
+            // Lade abgeschlossene Kurse von Firestore
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const completedCourses = userDoc.data().completedCourses || [];
+                    loadCompletedCourses(completedCourses);
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden der Kursdaten:', error);
+            }
+        });
+
+        function loadCompletedCourses(completedCourses) {
+            const courseMap = [
+                'review_system',
+                'mental_mastery',
+                'champion_fundamentals',
+                'mechanical_fundamentals',
+                'spielverstaendnis'
+            ];
+
+            courseMap.forEach((courseId, index) => {
+                const courseCard = document.getElementById('course-' + index);
+                if (completedCourses.includes(courseId)) {
+                    courseCard.classList.add('completed');
+                }
+            });
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error('Logout Fehler:', error);
+            });
+        }
+
+        // Speichere den Namen des aktuellen Benutzers für die Kurse
+        window.getCurrentUser = () => {
+            return auth.currentUser;
+        };
+
+        window.getDatabase = () => {
+            return db;
+        };
+    </script>
+</body>
+</html>
