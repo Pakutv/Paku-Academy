@@ -602,7 +602,7 @@
 
     
     <script>
-      function completeCourse(courseId, courseName) {
+function completeCourse(courseId, courseName) {
     const user = firebase.auth().currentUser;
     
     if (!user) {
@@ -610,15 +610,16 @@
         return;
     }
 
-    firebase.firestore().collection('users').doc(user.uid).update({
+    // Verwende .set() mit merge statt .update() - das erstellt das Dokument falls nötig
+    firebase.firestore().collection('users').doc(user.uid).set({
         completedCourses: firebase.firestore.FieldValue.arrayUnion(courseId),
         lastUpdated: new Date()
-    }).then(() => {
+    }, { merge: true }).then(() => {
         alert('✅ ' + courseName + ' wurde abgeschlossen!');
         window.location.href = 'index.html';
     }).catch((error) => {
         console.error('Fehler beim Speichern:', error);
-        alert('Fehler beim Speichern des Fortschritts');
+        alert('Fehler beim Speichern des Fortschritts: ' + error.message);
     });
 }
     </script>
