@@ -38,11 +38,6 @@
             font-size: 2em;
         }
 
-        .header-title p {
-            color: #ceb478;
-            font-size: 0.9em;
-        }
-
         .user-info {
             text-align: right;
         }
@@ -96,7 +91,6 @@
         .course-card h3 {
             color: #c89b3c;
             margin-bottom: 10px;
-            font-size: 1.2em;
         }
 
         .course-card.completed h3 {
@@ -139,7 +133,6 @@
         <div class="header">
             <div>
                 <h1>🎮 PAKU ACADEMY</h1>
-                <p>League of Legends Kurssystem</p>
             </div>
             <div class="user-info">
                 <div class="user-name" id="user-name">Wird geladen...</div>
@@ -147,9 +140,7 @@
             </div>
         </div>
 
-        <div id="loading" class="loading">
-            Wird geladen...
-        </div>
+        <div id="loading" class="loading">Wird geladen...</div>
 
         <div id="content" style="display: none;">
             <h2>📚 Deine Kurse</h2>
@@ -167,25 +158,25 @@
                 <a href="03_Champion_Fundamentals.html" class="course-card" id="course-2">
                     <div class="completion-badge">✅ ABGESCHLOSSEN</div>
                     <h3>🎮 Champion Fundamentals</h3>
-                    <p>Meistere deinen Champion auf tiefste Ebene</p>
+                    <p>Meistere deinen Champion</p>
                 </a>
                 <a href="04_Mechanical_Fundamentals.html" class="course-card" id="course-3">
                     <div class="completion-badge">✅ ABGESCHLOSSEN</div>
                     <h3>⚙️ Mechanical Fundamentals</h3>
-                    <p>Trainiere saubere Ausführung und Movement</p>
+                    <p>Trainiere saubere Ausführung</p>
                 </a>
                 <a href="05_Spielverstaendnis.html" class="course-card" id="course-4">
                     <div class="completion-badge">✅ ABGESCHLOSSEN</div>
                     <h3>🧠 Spielverständnis</h3>
-                    <p>Lerne bessere strategische Entscheidungen</p>
+                    <p>Bessere strategische Entscheidungen</p>
                 </a>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -195,28 +186,19 @@
             databaseURL: "https://paku-academy-default-rtdb.europe-west1.firebasedatabase.app"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        console.log("Firebase initialized");
-
-        // Check Authentication
         auth.onAuthStateChanged(async (user) => {
-            console.log("Auth state changed:", user);
-            
             const loadingDiv = document.getElementById('loading');
             const contentDiv = document.getElementById('content');
 
             if (!user) {
-                console.log("No user, redirecting to login");
                 window.location.href = 'login.html';
                 return;
             }
 
-            console.log("User logged in:", user.email);
-            
             loadingDiv.style.display = 'none';
             contentDiv.style.display = 'block';
 
@@ -225,9 +207,8 @@
             
             try {
                 const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
-                    const completedCourses = userDoc.data().completedCourses || [];
-                    console.log("Completed courses:", completedCourses);
+                if (userDoc.exists && userDoc.data().completedCourses) {
+                    const completedCourses = userDoc.data().completedCourses;
                     
                     const courseMap = [
                         'review_system',
@@ -244,16 +225,13 @@
                     });
                 }
             } catch (error) {
-                console.error('Error loading courses:', error);
+                console.error('Error:', error);
             }
         });
 
         function logout() {
             auth.signOut().then(() => {
                 window.location.href = 'login.html';
-            }).catch((error) => {
-                console.error('Logout error:', error);
-                alert('Logout Fehler: ' + error.message);
             });
         }
     </script>
