@@ -100,6 +100,10 @@
             border: 2px solid #c89b3c;
         }
 
+        .btn-login:hover, .btn-register:hover {
+            transform: translateY(-2px);
+        }
+
         .error-message {
             background: rgba(220, 53, 69, 0.2);
             border: 1px solid #dc3545;
@@ -120,11 +124,7 @@
             display: none;
         }
 
-        #loginForm {
-            display: block;
-        }
-
-        #registerForm {
+        .hidden {
             display: none;
         }
     </style>
@@ -138,43 +138,49 @@
         <div id="errorMessage" class="error-message"></div>
         <div id="successMessage" class="success-message"></div>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="loginEmail">E-Mail</label>
-                <input type="email" id="loginEmail" placeholder="deine@email.de" required>
-            </div>
-            <div class="form-group">
-                <label for="loginPassword">Passwort</label>
-                <input type="password" id="loginPassword" placeholder="••••••••" required>
-            </div>
-            <div class="button-group">
-                <button type="submit" class="btn-login">Login</button>
-                <button type="button" class="btn-register" onclick="toggleForm()">Registrieren</button>
-            </div>
-        </form>
+        <!-- LOGIN FORM -->
+        <div id="loginSection">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">E-Mail</label>
+                    <input type="email" id="loginEmail" placeholder="deine@email.de" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Passwort</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-login">Login</button>
+                    <button type="button" class="btn-register" onclick="showRegisterForm()">Registrieren</button>
+                </div>
+            </form>
+        </div>
 
-        <form id="registerForm">
-            <div class="form-group">
-                <label for="registerName">Name</label>
-                <input type="text" id="registerName" placeholder="Dein Name" required>
-            </div>
-            <div class="form-group">
-                <label for="registerEmail">E-Mail</label>
-                <input type="email" id="registerEmail" placeholder="deine@email.de" required>
-            </div>
-            <div class="form-group">
-                <label for="registerPassword">Passwort</label>
-                <input type="password" id="registerPassword" placeholder="Min. 6 Zeichen" required>
-            </div>
-            <div class="form-group">
-                <label for="registerPasswordConfirm">Passwort wiederholen</label>
-                <input type="password" id="registerPasswordConfirm" placeholder="Min. 6 Zeichen" required>
-            </div>
-            <div class="button-group">
-                <button type="submit" class="btn-login">Account erstellen</button>
-                <button type="button" class="btn-register" onclick="toggleForm()">Zurück</button>
-            </div>
-        </form>
+        <!-- REGISTER FORM -->
+        <div id="registerSection" class="hidden">
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Name</label>
+                    <input type="text" id="registerName" placeholder="Dein Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">E-Mail</label>
+                    <input type="email" id="registerEmail" placeholder="deine@email.de" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Passwort</label>
+                    <input type="password" id="registerPassword" placeholder="Min. 6 Zeichen" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">Passwort wiederholen</label>
+                    <input type="password" id="registerPasswordConfirm" placeholder="Min. 6 Zeichen" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-login">Account erstellen</button>
+                    <button type="button" class="btn-register" onclick="showLoginForm()">Zurück</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -199,23 +205,33 @@
             }
         });
 
-        function toggleForm() {
-            document.getElementById('loginForm').style.display = 
-                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('registerForm').style.display = 
-                document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
+        function showLoginForm() {
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('registerSection').classList.add('hidden');
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('registerSection').classList.remove('hidden');
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
         }
 
         function showError(msg) {
             document.getElementById('errorMessage').textContent = msg;
             document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
         }
 
         function showSuccess(msg) {
             document.getElementById('successMessage').textContent = msg;
             document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
         }
 
+        // LOGIN HANDLER
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
@@ -229,6 +245,7 @@
             }
         });
 
+        // REGISTER HANDLER
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('registerPassword').value;
@@ -236,6 +253,11 @@
 
             if (password !== passwordConfirm) {
                 showError('Passwörter stimmen nicht überein');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Passwort muss mindestens 6 Zeichen lang sein');
                 return;
             }
 
@@ -252,7 +274,10 @@
                     completedCourses: []
                 });
 
-                window.location.href = 'index.html';
+                showSuccess('Account erstellt! Du wirst angemeldet...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
             } catch (error) {
                 showError('Registration fehlgeschlagen: ' + error.message);
             }
