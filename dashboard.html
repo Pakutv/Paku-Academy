@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAKU ACADEMY – Schüler Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+  :root {
+    --gold: #C9A84C;
+    --dark: #0D0F14;
+    --panel: #13161E;
+    --panel2: #1A1E2A;
+    --border: #2A2F40;
+    --text: #D0D6E8;
+    --muted: #5A6080;
+    --accent: #3A7BFF;
+    --success: #2ECC71;
+    --danger: #E74C3C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0D0F14 0%, #1A1030 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-container { display: flex; align-items: center; gap: 15px; }
+  .logo-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
+  .logo-text { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--gold); letter-spacing: 2px; }
+  .user-name { color: var(--gold); font-weight: 700; }
+
+  .toolbar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 10px 40px; display: flex; gap: 12px; }
+  .btn { background: var(--panel2); border: 1px solid var(--border); color: var(--text); padding: 7px 16px; border-radius: 6px; cursor: pointer; font-family: 'Exo 2', sans-serif; font-size: 12px; letter-spacing: 1px; transition: all 0.2s; }
+  .btn:hover { border-color: var(--gold); color: var(--gold); }
+  .btn.primary { background: var(--gold); color: #000; font-weight: 700; }
+  .btn.logout-btn { background: var(--danger); color: white; }
+
+  main { max-width: 1300px; margin: 0 auto; padding: 32px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .tabs { grid-column: 1 / -1; display: flex; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; overflow-x: auto; }
+  .tab-btn { background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--muted); cursor: pointer; padding: 8px 16px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; white-space: nowrap; }
+  .tab-btn:hover { color: var(--gold); }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: contents; }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .card:hover { border-color: rgba(201,168,76,0.3); }
+  .card.full { grid-column: 1 / -1; }
+  .card-header { background: var(--panel2); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+  .card-body { padding: 20px; }
+
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+  .field label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .field input, .field textarea { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 14px; padding: 8px 12px; outline: none; }
+  .field input:focus, .field textarea:focus { border-color: var(--gold); }
+  .field textarea { resize: vertical; min-height: 60px; }
+
+  .check-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; margin-bottom: 8px; }
+  .check-item input { display: none; }
+  .check-box { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; }
+  .check-item.done .check-box { background: var(--gold); border-color: var(--gold); color: #000; }
+
+  .saved-note { font-size: 11px; color: var(--success); opacity: 0; transition: opacity 0.4s; }
+  .saved-note.show { opacity: 1; }
+
+  .kpi-table { width: 100%; border-collapse: collapse; }
+  .kpi-table th { text-align: left; font-size: 10px; color: var(--muted); padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  .kpi-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .kpi-table input { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 13px; padding: 5px 8px; width: 90px; outline: none; }
+  .kpi-table input:focus { border-color: var(--gold); }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <img src="https://pakutv.github.io/Paku-Academy/paku-logo.png" alt="PAKU Logo" class="logo-img">
+    <div class="logo-text">PAKU ACADEMY</div>
+  </div>
+  <div>
+    <div class="user-name" id="userName">Wird geladen...</div>
+    <small>Dashboard</small>
+  </div>
+  <button class="btn logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div class="toolbar">
+  <button class="btn primary" onclick="saveAll()">💾 Speichern</button>
+  <button class="btn" onclick="location.href='index.html'">← Zurück zur Academy</button>
+  <span class="saved-note" id="savedNote">✓ Gespeichert</span>
+</div>
+
+<main>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('general')">📋 Allgemein</button>
+    <button class="tab-btn" onclick="switchTab('cs')">📊 CS-Tracker</button>
+    <button class="tab-btn" onclick="switchTab('review')">🎥 Reviews</button>
+    <button class="tab-btn" onclick="switchTab('progress')">🏆 Fortschritt</button>
+    <button class="tab-btn" onclick="switchTab('notes')">📝 Notizen</button>
+    <button class="tab-btn" onclick="switchTab('coach')">👨‍🏫 Coach</button>
+  </div>
+
+  <!-- TAB: GENERAL -->
+  <div class="tab-content active" id="general-tab">
+    <div class="card">
+      <div class="card-header">👤 Profil</div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field"><label>Summoner Name</label><input type="text" id="summoner"></div>
+          <div class="field"><label>Coach</label><input type="text" id="coach"></div>
+          <div class="field"><label>Jetziges Elo</label><input type="text" id="eloNow"></div>
+          <div class="field"><label>Peak Elo</label><input type="text" id="eloPeak"></div>
+          <div class="field"><label>Haupt-Role</label><input type="text" id="role"></div>
+          <div class="field"><label>Haupt-Champions</label><input type="text" id="champions"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="card-header">🎯 Wochenziele</div><div class="card-body"><div id="weekGoals"></div></div></div>
+    <div class="card full"><div class="card-header">📈 KPI Tracking</div><div class="card-body"><table class="kpi-table"><thead><tr><th>Metrik</th><th>JETZT</th><th>ZIEL</th></tr></thead><tbody id="kpiBody"></tbody></table></div></div>
+  </div>
+
+  <!-- TAB: CS-TRACKER -->
+  <div class="tab-content" id="cs-tab">
+    <div class="card full">
+      <div class="card-header">📊 CS pro Game</div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px;">
+          <div class="field"><label>CS Gesamt</label><input type="number" id="csTotal" min="0"></div>
+          <div class="field"><label>Länge (min)</label><input type="number" id="csTime" min="0" step="0.5"></div>
+          <div class="field"><label>CS/Min</label><input type="text" id="csmDisplay" readonly style="background: var(--panel2); color: var(--gold); font-weight: 700;"></div>
+          <button class="btn primary" onclick="addCSEntry()" style="align-self: flex-end;">Hinzufügen</button>
+        </div>
+        <div id="csList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: REVIEWS -->
+  <div class="tab-content" id="review-tab">
+    <div class="card"><div class="card-header">📝 Hausaufgabe</div><div class="card-body"><div class="field"><label>Fokus</label><textarea id="hwFocus"></textarea></div><div id="hwChecks" style="margin-top: 15px;"></div></div></div>
+    <div class="card"><div class="card-header">🎥 Replay Review</div><div class="card-body"><div class="field"><label>Datum</label><input type="date" id="reviewDate"></div><div class="field"><label>Thema</label><input type="text" id="reviewTopic"></div><div class="field"><label>Fehler</label><textarea id="reviewMistake"></textarea></div><div class="field"><label>Verbesserung</label><textarea id="reviewImprove"></textarea></div></div></div>
+  </div>
+
+  <!-- TAB: PROGRESS -->
+  <div class="tab-content" id="progress-tab">
+    <div class="card full"><div class="card-header">🏆 Fortschritt</div><div class="card-body"><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;"><div><div style="font-size: 11px; color: var(--muted); margin-bottom: 10px; text-transform: uppercase;">Fundamentals</div><div id="progFund"></div></div><div><div style="font-size: 11px; color: var(--muted); margin-bottom: 10px; text-transform: uppercase;">Rollenwissen</div><div id="progRole"></div></div></div></div></div>
+  </div>
+
+  <!-- TAB: NOTES -->
+  <div class="tab-content" id="notes-tab">
+    <div class="card full"><div class="card-header">📝 Notizen</div><div class="card-body"><textarea id="coachNotes" style="width: 100%; min-height: 200px; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 14px; padding: 12px; outline: none; resize: vertical;"></textarea></div></div>
+  </div>
+
+  <!-- TAB: COACH -->
+  <div class="tab-content" id="coach-tab">
+    <div class="card full">
+      <div class="card-header">👨‍🏫 Mit Coach verbinden</div>
+      <div class="card-body">
+        <div id="coachSection">
+          <div style="background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 20px; text-align: center;">
+            
+            <div id="noCoachDisplay" style="display: block;">
+              <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Coach-Code eingeben</div>
+              <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="coachCodeInput" placeholder="z.B. COACH123XYZ" style="flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; padding: 10px; outline: none; text-transform: uppercase;" />
+                <button onclick="connectCoach()" style="background: linear-gradient(135deg, #c89b3c, #785a28); color: #0a1428; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">🔗 Verbinden</button>
+              </div>
+              <div style="font-size: 12px; color: var(--muted); line-height: 1.6; text-align: left;">
+                📌 Dein Coach teilt seinen Code mit dir. Gib ihn oben ein.
+              </div>
+            </div>
+
+            <div id="coachConnectedDisplay" style="display: none;">
+              <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Dein Coach</div>
+              <div style="color: var(--gold); font-weight: 700; font-size: 18px; margin-bottom: 15px;" id="coachNameDisplay">—</div>
+              <button onclick="disconnectCoach()" style="background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">✕ Trennen</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    projectId: "paku-academy",
+    apiKey: "AIzaSyBONrlg2hMKFL9WKSAg7v11uhQ72QsMX7k",
+    authDomain: "paku-academy.firebaseapp.com",
+    databaseURL: "https://paku-academy-default-rtdb.europe-west1.firebasedatabase.app"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let currentUser = null;
+  let csData = [];
+
+  const WEEK_GOALS = ["CS / Min verbessern","Weniger sterben","Vision verbessern","Wave Management","Objective Play","Positioning","Mental","Champion Mastery"];
+  const HW_CHECKS = ["5 Ranked Games spielen","1 Replay analysieren","Command Center lesen","Challenge abschließen","Coach Feedback umsetzen"];
+  const KPI_ROWS = [["CS / Min","csNow","csGoal"],["Deaths / Game","dNow","dGoal"],["Vision Score","vsNow","vsGoal"],["Winrate","wrNow","wrGoal"],["KDA","kdaNow","kdaGoal"],["Ranked Spiele","gsNow","gsGoal"]];
+  const FUND = ["Champion Mastery","Mechanics","Mental","Macro","Review Process"];
+  const ROLE = ["Early Game","Mid Game","Late Game","Teamfights","Objectives"];
+
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = 'dashboard-login.html';
+      return;
+    }
+    currentUser = user;
+    document.getElementById('userName').textContent = user.email.split('@')[0];
+    buildUI();
+    loadFromFirestore();
+  });
+
+  function buildUI() {
+    buildWeekGoals();
+    buildHwChecks();
+    buildKpi();
+    buildProgress();
+  }
+
+  function buildWeekGoals() {
+    const c = document.getElementById('weekGoals');
+    WEEK_GOALS.forEach((g, i) => {
+      const id = `wg_${i}`;
+      const item = document.createElement('label');
+      item.className = 'check-item';
+      item.innerHTML = `<input type="checkbox" id="${id}"><div class="check-box"></div><span>${g}</span>`;
+      item.querySelector('input').addEventListener('change', e => {
+        item.classList.toggle('done', e.target.checked);
+        item.querySelector('.check-box').textContent = e.target.checked ? '✓' : '';
+      });
+      c.appendChild(item);
+    });
+  }
+
+  function buildHwChecks() {
+    const c = document.getElementById('hwChecks');
+    HW_CHECKS.forEach((g, i) => {
+      const id = `hw_${i}`;
+      const item = document.createElement('label');
+      item.className = 'check-item';
+      item.innerHTML = `<input type="checkbox" id="${id}"><div class="check-box"></div><span>${g}</span>`;
+      item.querySelector('input').addEventListener('change', e => {
+        item.classList.toggle('done', e.target.checked);
+        item.querySelector('.check-box').textContent = e.target.checked ? '✓' : '';
+      });
+      c.appendChild(item);
+    });
+  }
+
+  function buildKpi() {
+    const tbody = document.getElementById('kpiBody');
+    KPI_ROWS.forEach(([label, idNow, idGoal]) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${label}</td><td><input type="text" id="${idNow}" placeholder="—"></td><td><input type="text" id="${idGoal}" placeholder="—"></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function buildProgress() {
+    ['progFund', 'progRole'].forEach((id, idx) => {
+      const items = idx === 0 ? FUND : ROLE;
+      const prefix = idx === 0 ? 'fund' : 'role';
+      const c = document.getElementById(id);
+      items.forEach((label, i) => {
+        const checkId = `${prefix}_${i}`;
+        const item = document.createElement('label');
+        item.className = 'check-item';
+        item.innerHTML = `<input type="checkbox" id="${checkId}"><div class="check-box"></div><span style="flex:1;">${label}</span>`;
+        item.querySelector('input').addEventListener('change', e => {
+          item.classList.toggle('done', e.target.checked);
+          item.querySelector('.check-box').textContent = e.target.checked ? '✓' : '';
+        });
+        c.appendChild(item);
+      });
+    });
+  }
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(tabName + '-tab').classList.add('active');
+  }
+
+  document.getElementById('csTotal')?.addEventListener('input', () => {
+    const total = parseFloat(document.getElementById('csTotal').value) || 0;
+    const time = parseFloat(document.getElementById('csTime').value) || 1;
+    document.getElementById('csmDisplay').value = (total / time).toFixed(2);
+  });
+
+  document.getElementById('csTime')?.addEventListener('input', () => {
+    const total = parseFloat(document.getElementById('csTotal').value) || 0;
+    const time = parseFloat(document.getElementById('csTime').value) || 1;
+    document.getElementById('csmDisplay').value = (total / time).toFixed(2);
+  });
+
+  function addCSEntry() {
+    const total = parseFloat(document.getElementById('csTotal').value);
+    const time = parseFloat(document.getElementById('csTime').value);
+    if (!total || !time) return;
+    csData.push({ cs: total, time: time, csm: (total / time).toFixed(2), timestamp: new Date().toLocaleString() });
+    document.getElementById('csTotal').value = '';
+    document.getElementById('csTime').value = '';
+    renderCSList();
+  }
+
+  function renderCSList() {
+    const list = document.getElementById('csList');
+    list.innerHTML = '';
+    csData.forEach((entry, idx) => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display: flex; justify-content: space-between; padding: 10px; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px;';
+      item.innerHTML = `<span>${entry.csm} CSM (${entry.cs} CS in ${entry.time}min)</span><button onclick="csData.splice(${idx},1); renderCSList();" style="background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Löschen</button>`;
+      list.appendChild(item);
+    });
+  }
+
+  function collectData() {
+    const ids = ['summoner','coach','eloNow','eloPeak','role','champions','hwFocus','reviewDate','reviewTopic','reviewMistake','reviewImprove','coachNotes'];
+    const data = { csData };
+    ids.forEach(id => { const el = document.getElementById(id); if(el) data[id] = el.value; });
+    KPI_ROWS.forEach(([,idNow,idGoal]) => { [idNow,idGoal].forEach(id => { const el = document.getElementById(id); if(el) data[id] = el.value; }); });
+    WEEK_GOALS.forEach((_,i) => { data[`wg_${i}`] = document.getElementById(`wg_${i}`)?.checked || false; });
+    HW_CHECKS.forEach((_,i) => { data[`hw_${i}`] = document.getElementById(`hw_${i}`)?.checked || false; });
+    FUND.forEach((_,i) => { data[`fund_${i}`] = document.getElementById(`fund_${i}`)?.checked || false; });
+    ROLE.forEach((_,i) => { data[`role_${i}`] = document.getElementById(`role_${i}`)?.checked || false; });
+    return data;
+  }
+
+  function applyData(data) {
+    if (data.csData) { csData = data.csData; renderCSList(); }
+    Object.entries(data).forEach(([id, val]) => {
+      if (id === 'csData') return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === 'checkbox') {
+        el.checked = !!val;
+        el.closest('.check-item')?.classList.toggle('done', !!val);
+      } else {
+        el.value = val;
+      }
+    });
+  }
+
+  async function saveAll() {
+    if (!currentUser) return;
+    try {
+      await db.collection('dashboard').doc(currentUser.uid).set(collectData(), { merge: true });
+      document.getElementById('savedNote').classList.add('show');
+      setTimeout(() => document.getElementById('savedNote').classList.remove('show'), 2000);
+    } catch (error) {
+      alert('Fehler: ' + error.message);
+    }
+  }
+
+  async function loadFromFirestore() {
+    if (!currentUser) return;
+    try {
+      const doc = await db.collection('dashboard').doc(currentUser.uid).get();
+      if (doc.exists) applyData(doc.data());
+      loadCoach();
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async function loadCoach() {
+    if (!currentUser) return;
+    try {
+      const doc = await db.collection('dashboard').doc(currentUser.uid).get();
+      if (doc.exists && doc.data().coachId) {
+        document.getElementById('noCoachDisplay').style.display = 'none';
+        document.getElementById('coachConnectedDisplay').style.display = 'block';
+        document.getElementById('coachNameDisplay').textContent = doc.data().coachName || 'Coach';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async function connectCoach() {
+    const coachCode = document.getElementById('coachCodeInput').value.trim().toUpperCase();
+    if (!coachCode) { alert('Coach-Code eingeben!'); return; }
+    try {
+      const q = await db.collection('coaches').where('coachCode', '==', coachCode).get();
+      if (q.empty) { alert('Code nicht gefunden!'); return; }
+      const coachId = q.docs[0].id;
+      const coachData = q.docs[0].data();
+      const updateData = {
+        coachId: coachId,
+        coachName: coachData.coachName || 'Coach'
+      };
+      if (coachData.email) {
+        updateData.coachEmail = coachData.email;
+      }
+      await db.collection('dashboard').doc(currentUser.uid).set(updateData, { merge: true });
+      document.getElementById('coachCodeInput').value = '';
+      await loadCoach();
+      alert('✅ Verbunden!');
+      await saveAll();
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  }
+
+  async function disconnectCoach() {
+    if (!confirm('Trennen?')) return;
+    try {
+      await db.collection('dashboard').doc(currentUser.uid).set({
+        coachId: firebase.firestore.FieldValue.delete(),
+        coachEmail: firebase.firestore.FieldValue.delete(),
+        coachName: firebase.firestore.FieldValue.delete()
+      }, { merge: true });
+      document.getElementById('noCoachDisplay').style.display = 'block';
+      document.getElementById('coachConnectedDisplay').style.display = 'none';
+      await saveAll();
+      alert('✅ Getrennt!');
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = 'dashboard-login.html';
+    });
+  }
+
+  setInterval(saveAll, 60000);
+</script>
+
+</body>
+</html>
