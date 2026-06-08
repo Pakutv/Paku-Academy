@@ -178,7 +178,9 @@
             databaseURL: "https://paku-academy-default-rtdb.europe-west1.firebasedatabase.app"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
@@ -239,27 +241,27 @@
             }
 
             try {
-                // Erstelle User
+                // Erstelle User in Firebase Auth
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const userId = userCredential.user.uid;
 
-                // Erstelle Firestore Dokument SOFORT
+                // Erstelle User-Dokument in Firestore mit merge
                 await db.collection('users').doc(userId).set({
                     name: name,
                     email: email,
-                    createdAt: firebase.firestore.Timestamp.now(),
+                    createdAt: new Date(),
                     completedCourses: []
-                });
+                }, { merge: true });
 
-                console.log('User Dokument erstellt:', userId);
+                console.log('✅ User created:', userId);
                 
-                // Warte kurz, dann redirect
+                // Warte kurz
                 setTimeout(() => {
                     window.location.href = 'index.html';
-                }, 500);
+                }, 1000);
 
             } catch (error) {
-                showError('Registration fehlgeschlagen: ' + error.message);
+                showError('Registration Error: ' + error.message);
                 console.error('Register Error:', error);
             }
         });
