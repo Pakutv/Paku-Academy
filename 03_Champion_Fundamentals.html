@@ -768,9 +768,12 @@
         databaseURL: "https://paku-academy-default-rtdb.europe-west1.firebasedatabase.app"
     };
 
+   // Initialisiere Firebase nur wenn noch nicht geschehen
+if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
 
     auth.onAuthStateChanged(user => {
         if (!user) {
